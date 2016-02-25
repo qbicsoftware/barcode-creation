@@ -42,7 +42,7 @@ def create_barcode(code, name):
         code = name + code
     pscode = open(tmp + "var.ps", "w")
     pscode.write("0 0 moveto " + hexify(code) + " " + hexify('') + " " + hexify(
-        "qrcode") + " cvn /uk.co.terryburton.bwipp findresource exec\n")
+        "microqrcode") + " cvn /uk.co.terryburton.bwipp findresource exec\n")
     pscode.write("showpage")
     pscode.close()
     os.system('cat ' + path + 'barcode.ps ' + tmp + 'var.ps > ' + tmp + name + '.ps')
@@ -68,59 +68,33 @@ def create_barcodes(codedStrings, qbicCodes, topInfos, bottomInfos):
         code = fixInfoString(code)
         tex = open(tmp + name + ".tex", "w")
         qr = tmp + name + "qr.pdf"
-        tex.write('''\documentclass[a4paper]{article}
+        tex.write("""\documentclass[a4paper]{article}
 \usepackage{graphicx}
- \usepackage[paperwidth=39mm,paperheight=9.8mm]{geometry}
- \\begin{document}
- \hoffset=-5.0mm
-\\thispagestyle{empty} 
- \\begin{table} [ht] 
-  \\begin{tabular}{l}
-	  \\begin{minipage}[t]{40mm}  
-	  \\begin{center} 
-	  \\begingroup
-		\\renewcommand*\\rmdefault{arial}
-		\\ttfamily
-		    \\fontsize{8pt}{11pt}\selectfont
-		\\vskip -0.36cm
-               \\hskip -0.12cm
-		    %(name)s
-	   \endgroup
-	   \end{center} 
-	\\vskip -0.35cm
-	 \\begin{tabular}{p{9mm}p{17mm}p{9mm}}
-	\\hskip -0.1cm
-		\includegraphics[width=.62cm, height=.62cm]{%(qr)s} & 
-	 
-			  \\begingroup
-				\\renewcommand*\\rmdefault{arial}
-				\\ttfamily
-				    \\fontsize{5pt}{8pt}\selectfont
-				\\vskip -0.65cm
-				 \\hskip -0.7cm
-				 \\begin{minipage}[t]{1.4cm}  
-				   \\mbox{%(topInfo)s}
-				\\vskip -0.12cm \\mbox{%(bottomInfo)s}
-				 \end{minipage}
-	   		  \endgroup   
-	               \\begingroup
-				\\renewcommand*\\rmdefault{arial}
-				\\ttfamily
-				    \\fontsize{4pt}{6pt}\selectfont
-				\\vskip -0.06cm
-				 \\hskip -0.7cm
-				 \\begin{minipage}[t]{1cm}  
-				   \\vskip -0.05cm \\mbox{QBiC: +4970712972163} 
-				 \end{minipage}
-			  \endgroup   &
-\\hskip -0.8cm
-	 \includegraphics[width=.62cm, height=.62cm]{%(qr)s} 
-	    \end{tabular}
- 
-        \end{minipage}
- \end{tabular}
- \end{table}
-\end{document}\n''' % {"qr": qr, "topInfo": topInfo, "bottomInfo": bottomInfo, "name": code})
+\usepackage{tabularx}
+\usepackage[paperwidth=40mm,paperheight=10mm]{geometry}
+\usepackage{multirow}
+\geometry{
+    top=1.5mm,
+    left=-2mm,
+    right=-2mm
+    }
+\\renewcommand{\\baselinestretch}{0.8}
+\\begin{document}
+    \\newcolumntype{L}[1]{>{\\raggedright\\arraybackslash}p{#1}}
+    \\thispagestyle{empty}
+
+    \\begin{table}
+        \setlength\\tabcolsep{1pt}
+        \centering
+        \\begin{tabular}{cL{2.2cm}c}
+                \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}	& { \\fontsize{8pt}{0pt} \\ttfamily QICGC001AR} & \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}  \\\\
+                &  {\\vspace{-11pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{Liver sample 1}}  &  \\\\
+                & {\\vspace{-15pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{protein}}&  \\\\
+                & { \\vspace{-19pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{www.qbic.uni-tuebingen.de}}&\\\\
+
+        \end{tabular}
+    \end{table}
+\end{document}\n""" % {"qr": qr, "topInfo": topInfo, "bottomInfo": bottomInfo, "name": code})
         tex.close()
         os.system("pdflatex -shell-escape -output-directory=" + tmp + " " + tmp + name + ".tex")
         os.system("mv " + tmp + name + ".pdf " + pdfdir)
