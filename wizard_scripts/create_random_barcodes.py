@@ -14,8 +14,8 @@ NUM = "0123456789"
 
 def create_random_barcode():
     return create_random_info("Q", 5, ASCII) + \
-           create_random_info("", 3, NUM) + \
-           create_random_info("", 2, ASCII)
+           create_random_info(length=3) + \
+           create_random_info(length=2, type=ASCII)
 
 
 def create_random_info(init_project="", length=0, type=NUM):
@@ -38,7 +38,7 @@ def main():
         arg_list.append(default_measurement)
 
     print("./tube_barcodes_new.py {0}".format(" ".join(arg_list)))
-    os.system("python2.7 tube_barcodes_new.py {0}".format(" ".join(arg_list)))
+    #os.system("python2.7 tube_barcodes_new.py {0}".format(" ".join(arg_list)))
 
 main()
 
