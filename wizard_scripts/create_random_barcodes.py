@@ -38,7 +38,7 @@ def main():
         arg_list.append(default_measurement)
 
     print("./tube_barcodes_new.py {0}".format(" ".join(arg_list)))
-    #os.system("python2.7 tube_barcodes_new.py {0}".format(" ".join(arg_list)))
+    os.system("python2.7 tube_barcodes_new.py {0}".format(" ".join(arg_list)))
 
 main()
 
