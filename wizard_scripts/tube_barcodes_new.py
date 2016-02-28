@@ -87,9 +87,10 @@ def create_barcodes(codedStrings, qbicCodes, topInfos, bottomInfos):
         \setlength\\tabcolsep{1pt}
         \centering
         \\begin{tabular}{cL{2.2cm}c}
-                \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}	& { \\fontsize{8pt}{0pt} \\ttfamily QICGC001AR} & \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}  \\\\
-                &  {\\vspace{-11pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{Liver sample 1}}  &  \\\\
-                & {\\vspace{-15pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{protein}}&  \\\\
+                \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}	& { \\fontsize{8pt}{0pt}
+                \\ttfamily %(name)s} & \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}  \\\\
+                &  {\\vspace{-11pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{%(topInfo)s}}  &  \\\\
+                & {\\vspace{-15pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{%(bottomInfo)s}}&  \\\\
                 & { \\vspace{-19pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{www.qbic.uni-tuebingen.de}}&\\\\
 
         \end{tabular}
