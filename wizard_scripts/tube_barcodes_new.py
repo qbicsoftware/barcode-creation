@@ -45,7 +45,7 @@ def create_barcode(code, name):
         "microqrcode") + " cvn /uk.co.terryburton.bwipp findresource exec\n")
     pscode.write("showpage")
     pscode.close()
-    os.system('cat ' + path + 'barcode.ps ' + tmp + 'var.ps > ' + tmp + name + '.ps')
+    os.system('cat ' + '/usr/share/postscriptbarcode/barcode.ps ' + tmp + 'var.ps > ' + tmp + name + '.ps')
     box = subprocess.check_output(
         "gs -q -dBATCH -dNOPAUSE -sDEVICE=bbox " + tmp + name + ".ps 2>&1 | grep -v HiResBoundingBox", shell=True)
     box = box.split()
