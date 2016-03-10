@@ -11,24 +11,44 @@ import csv
 import math
 import subprocess
 import binascii, textwrap
+import time
 
-pathname = os.path.dirname(sys.argv[0])
-PRJ = sys.argv[2][1:5]
-BASEDIR = pathname + "/" + PRJ
-path = pathname + "/barcodes/"
+# INITIALIZATION OF PROPERTIES, CHANGE THIS TO YOUR PATH
+PROPERTIES_FILE_PATH = "/Users/frieda/Desktop/dev software/liferay-portal-6.2-ce-ga4/qbic-ext.properties"
 
-if "/" not in pathname:
-    BASEDIR = BASEDIR[1:]
-    path = path[1:]
-pdfdir = BASEDIR + "/barcodes/pdf"
+properties = {}
 
-tmp = path + 'tmp/'
-pdf = path + 'pdf/'
-eps = path + 'eps/'
-os.system('mkdir -p ' + tmp)
-os.system('mkdir -p ' + pdf)
-os.system('mkdir -p ' + eps)
+for line in open(PROPERTIES_FILE_PATH):
+    splt = line.strip().split('=')
+    if len(splt) == 2:
+        properties[splt[0].strip()] = splt[1].strip()
+
+PS_SCRIPT_FOLDER = properties["barcode.postscript"]
+TMP_FOLDER = properties["tmp.folder"]
+RESULTS_FOLDER = properties["barcode.results"]
+
+#TODO everything after here
+#pathname = os.path.dirname(sys.argv[0])
+PRJ = sys.argv[1][1:5]
+#BASEDIR = pathname + "/" + PRJ
+BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
+#path = pathname + "/barcodes/"
+
+#if "/" not in pathname:
+#    BASEDIR = BASEDIR[1:]
+#    path = path[1:]
+#pdfdir = BASEDIR + "/barcodes/pdf"
+pdfdir = os.path.join(BASEDIR, "pdf/")
 os.system('mkdir -p ' + pdfdir)
+tmp = os.path.join(TMP_FOLDER, 'tmp/')
+os.system('mkdir -p ' + tmp)
+
+#tmp = path + 'tmp/'
+#pdf = path + 'pdf/'
+#eps = path + 'eps/'
+#os.system('mkdir -p ' + tmp)
+#os.system('mkdir -p ' + pdf)
+#os.system('mkdir -p ' + eps)
 
 
 def hexify(string):
@@ -38,14 +58,16 @@ def hexify(string):
 # this function attaches variable barcode information to the
 # standard "blank" barcode ps-script, so barcodes can be created
 def create_barcode(code, name):
-    if not name in code:
-        code = name + code
-    pscode = open(tmp + "var.ps", "w")
+    #if not name in code:
+    #    code = name + code
+    timestamp = str(time.time()).replace(".","")
+    psFile = timestamp+"var.ps"
+    pscode = open(tmp + psFile, "w")
     pscode.write("0 0 moveto " + hexify(code) + " " + hexify('') + " " + hexify(
-        "qrcode") + " cvn /uk.co.terryburton.bwipp findresource exec\n")
+        "microqrcode") + " cvn /uk.co.terryburton.bwipp findresource exec\n")
     pscode.write("showpage")
     pscode.close()
-    os.system('cat ' + path + 'barcode_old.ps ' + tmp + 'var.ps > ' + tmp + name + '.ps')
+    os.system('cat ' + PS_SCRIPT_FOLDER + 'barcode.ps ' + tmp + psFile +' > ' + tmp + name + '.ps')
     box = subprocess.check_output(
         "gs -q -dBATCH -dNOPAUSE -sDEVICE=bbox " + tmp + name + ".ps 2>&1 | grep -v HiResBoundingBox", shell=True)
     box = box.split()
@@ -54,13 +76,14 @@ def create_barcode(code, name):
         'gs -o ' + tmp + name + 'qr.pdf -sDEVICE=pdfwrite -dDEVICEWIDTHPOINTS=' + box[3] + ' -dDEVICEHEIGHTPOINTS=' +
         box[4] + ' -dFIXEDMEDIA -c ' + clip + ' -f ' + tmp + name + '.ps')
 
+    os.system("rm " + tmp + psFile)
 
 def fixInfoString(info):
     return info[:21].replace("_", "\_").replace('#', '\#')
 
 
-def create_barcodes(codedStrings, qbicCodes, topInfos, bottomInfos):
-    for (code, name, topInfo, bottomInfo) in zip(codedStrings, qbicCodes, topInfos, bottomInfos):
+def create_barcodes(fileNames, qbicCodes, topInfos, bottomInfos):
+    for (name, code, topInfo, bottomInfo) in zip(fileNames, qbicCodes, topInfos, bottomInfos):
         topInfo = fixInfoString(topInfo)
         bottomInfo = fixInfoString(bottomInfo)
         name = name.strip()
@@ -68,66 +91,43 @@ def create_barcodes(codedStrings, qbicCodes, topInfos, bottomInfos):
         code = fixInfoString(code)
         tex = open(tmp + name + ".tex", "w")
         qr = tmp + name + "qr.pdf"
-        tex.write('''\documentclass[a4paper]{article}
+        tex.write("""\documentclass[a4paper]{article}
 \usepackage{graphicx}
- \usepackage[paperwidth=39mm,paperheight=9.8mm]{geometry}
- \\begin{document}
- \hoffset=-5.0mm
-\\thispagestyle{empty} 
- \\begin{table} [ht] 
-  \\begin{tabular}{l}
-	  \\begin{minipage}[t]{40mm}  
-	  \\begin{center} 
-	  \\begingroup
-		\\renewcommand*\\rmdefault{arial}
-		\\ttfamily
-		    \\fontsize{8pt}{11pt}\selectfont
-		\\vskip -0.36cm
-               \\hskip -0.12cm
-		    %(name)s
-	   \endgroup
-	   \end{center} 
-	\\vskip -0.35cm
-	 \\begin{tabular}{p{9mm}p{17mm}p{9mm}}
-	\\hskip -0.1cm
-		\includegraphics[width=.62cm, height=.62cm]{%(qr)s} & 
-	 
-			  \\begingroup
-				\\renewcommand*\\rmdefault{arial}
-				\\ttfamily
-				    \\fontsize{5pt}{8pt}\selectfont
-				\\vskip -0.65cm
-				 \\hskip -0.7cm
-				 \\begin{minipage}[t]{1.4cm}  
-				   \\mbox{%(topInfo)s}
-				\\vskip -0.12cm \\mbox{%(bottomInfo)s}
-				 \end{minipage}
-	   		  \endgroup   
-	               \\begingroup
-				\\renewcommand*\\rmdefault{arial}
-				\\ttfamily
-				    \\fontsize{4pt}{6pt}\selectfont
-				\\vskip -0.06cm
-				 \\hskip -0.7cm
-				 \\begin{minipage}[t]{1cm}  
-				   \\vskip -0.05cm \\mbox{QBiC: +4970712972163} 
-				 \end{minipage}
-			  \endgroup   &
-\\hskip -0.8cm
-	 \includegraphics[width=.62cm, height=.62cm]{%(qr)s} 
-	    \end{tabular}
- 
-        \end{minipage}
- \end{tabular}
- \end{table}
-\end{document}\n''' % {"qr": qr, "topInfo": topInfo, "bottomInfo": bottomInfo, "name": code})
+\usepackage{tabularx}
+\usepackage[paperwidth=40mm,paperheight=10mm]{geometry}
+\usepackage{multirow}
+\geometry{
+    top=1.5mm,
+    left=-2mm,
+    right=-2mm
+    }
+\\renewcommand{\\baselinestretch}{0.8}
+\\begin{document}
+    \\newcolumntype{L}[1]{>{\\raggedright\\arraybackslash}p{#1}}
+    \\thispagestyle{empty}
+
+    \\begin{table}
+        \setlength\\tabcolsep{1pt}
+        \centering
+        \\begin{tabular}{cL{2.2cm}c}
+                \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}	& { \\fontsize{8pt}{0pt}
+                \\ttfamily %(name)s} & \multirow{2}{*}{\includegraphics[height=0.62cm, width=0.62cm]{%(qr)s}}  \\\\
+                &  {\\vspace{-11pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{%(topInfo)s}}  &  \\\\
+                & {\\vspace{-15pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{%(bottomInfo)s}}&  \\\\
+                & { \\vspace{-19pt} \\fontsize{4pt}{0pt} \\ttfamily \scalebox{.8}[1.0]{www.qbic.uni-tuebingen.de}}&\\\\
+
+        \end{tabular}
+    \end{table}
+\end{document}\n""" % {"qr": qr, "topInfo": topInfo, "bottomInfo": bottomInfo, "name": code})
         tex.close()
         os.system("pdflatex -shell-escape -output-directory=" + tmp + " " + tmp + name + ".tex")
         os.system("mv " + tmp + name + ".pdf " + pdfdir)
+        os.system("rm " + tmp + name + "*")
+
     print "done"
 
 
-codedStrings = []
+fileNames = []
 qbicCodes = []
 infosTop = []
 infosBottom = []
@@ -140,8 +140,8 @@ if arglen % 4 > 0:
 
 print sys.argv
 for i in xrange(1, arglen, 4):
-    codedStrings.append(sys.argv[i])
-    qbicCodes.append(sys.argv[i + 1])
+    qbicCodes.append(sys.argv[i])
+    fileNames.append(sys.argv[i + 1])
     infosTop.append(sys.argv[i + 2])
     infosBottom.append(sys.argv[i + 3])
-create_barcodes(codedStrings, qbicCodes, infosTop, infosBottom)
+create_barcodes(fileNames, qbicCodes, infosTop, infosBottom)

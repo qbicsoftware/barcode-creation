@@ -5,28 +5,16 @@ import time
 import datetime
 from PyRTFloc import *
 
-# INITIALIZATION OF PROPERTIES, CHANGE THIS TO YOUR PATH
-PROPERTIES_FILE_PATH = "/Users/frieda/Desktop/dev software/liferay-portal-6.2-ce-ga4/qbic-ext.properties"
-
-properties = {}
-
-for line in open(PROPERTIES_FILE_PATH):
-    splt = line.strip().split('=')
-    if len(splt) == 2:
-        properties[splt[0].strip()] = splt[1].strip()
-
-RESULTS_FOLDER = properties["barcode.results"]
-
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('_%Y%b%d')
+
+pathname = os.path.dirname(sys.argv[0])
 
 PRJ = sys.argv[3][1:5]
 firstCol = sys.argv[1]
 secondCol = sys.argv[2]
-
-BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
-pngdir = os.path.join(BASEDIR, "png/")
-
+BASEDIR=pathname+"/"+PRJ
+png_path=BASEDIR+"/barcodes/png"
 sheet_path=BASEDIR+"/documents/sample_sheets"
 outfile=sheet_path+"/sample_sheet_"+PRJ+st
 
@@ -64,7 +52,7 @@ def MakeDoc() :
 		if(name in cats):
 			c1 = Cell( Paragraph( cats[name] ), thin_frame ) 
 			table.AddRow(c1)
-		image = Image( pngdir+'/'+ name +'.png' , width=2*72)
+		image = Image( png_path+'/'+ name +'.png' , width=2*72)
 		c1 = Cell( Paragraph( image ), thin_frame ) 
 		section.append(table)
 		table = Table( TabPS.DEFAULT_WIDTH * 4, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 2 )
