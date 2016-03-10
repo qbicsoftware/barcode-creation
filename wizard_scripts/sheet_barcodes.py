@@ -4,8 +4,8 @@ import subprocess
 import binascii, textwrap
 import time
 
-# INITIALIZATION OF PROPERTIES, CHANGE THIS TO YOUR PATH
-PROPERTIES_FILE_PATH = "/Users/frieda/Desktop/dev software/liferay-portal-6.2-ce-ga4/qbic-ext.properties"
+# Initalization of properties, place file with path in this directory or change
+PROPERTIES_FILE_PATH = fline=open("properties_path.txt").readline().rstrip()
 
 properties = {}
 
