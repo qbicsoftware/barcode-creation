@@ -13,8 +13,10 @@ import subprocess
 import binascii, textwrap
 import time
 
+BASE = os.path.dirname(sys.argv[0])+"/"
+
 # Initalization of properties, place file with path in this directory or change
-PROPERTIES_FILE_PATH = fline=open("properties_path.txt").readline().rstrip()
+PROPERTIES_FILE_PATH = fline=open(BASE+"properties_path.txt").readline().rstrip()
 
 properties = {}
 
