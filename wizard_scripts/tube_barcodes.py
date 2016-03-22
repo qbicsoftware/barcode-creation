@@ -29,29 +29,13 @@ PS_SCRIPT_FOLDER = properties["barcode.postscript"]
 TMP_FOLDER = properties["tmp.folder"]
 RESULTS_FOLDER = properties["barcode.results"]
 
-#TODO everything after here
-#pathname = os.path.dirname(sys.argv[0])
-PRJ = sys.argv[1][1:5]
-#BASEDIR = pathname + "/" + PRJ
+PRJ = sys.argv[1][6:10] #mind the file name prefix
 BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
-#path = pathname + "/barcodes/"
 
-#if "/" not in pathname:
-#    BASEDIR = BASEDIR[1:]
-#    path = path[1:]
-#pdfdir = BASEDIR + "/barcodes/pdf"
 pdfdir = os.path.join(BASEDIR, "pdf/")
 os.system('mkdir -p ' + pdfdir)
 tmp = os.path.join(TMP_FOLDER, 'tmp/')
 os.system('mkdir -p ' + tmp)
-
-#tmp = path + 'tmp/'
-#pdf = path + 'pdf/'
-#eps = path + 'eps/'
-#os.system('mkdir -p ' + tmp)
-#os.system('mkdir -p ' + pdf)
-#os.system('mkdir -p ' + eps)
-
 
 def hexify(string):
     return textwrap.TextWrapper(subsequent_indent=' ', width=72).fill('<' + binascii.hexlify(string) + '>')
@@ -59,9 +43,8 @@ def hexify(string):
 
 # this function attaches variable barcode information to the
 # standard "blank" barcode ps-script, so barcodes can be created
-def create_barcode(code, name):
-    #if not name in code:
-    #    code = name + code
+def create_barcode(name):
+    code = name[5:]#mind the file name prefix
     timestamp = str(time.time()).replace(".","")
     psFile = timestamp+"var.ps"
     pscode = open(tmp + psFile, "w")
@@ -83,16 +66,18 @@ def create_barcode(code, name):
 def fixInfoString(info):
     return info[:21].replace("_", "\_").replace('#', '\#')
 
+def fixIDString(id):
+    return id[:15].replace("_", "\_").replace('#', '\#')
 
-def create_barcodes(fileNames, qbicCodes, topInfos, bottomInfos):
-    for (name, code, topInfo, bottomInfo) in zip(fileNames, qbicCodes, topInfos, bottomInfos):
+def create_barcodes(fileNames, IDInfos, topInfos, bottomInfos):
+    for (fileName, id, topInfo, bottomInfo) in zip(fileNames, IDInfos, topInfos, bottomInfos):
         topInfo = fixInfoString(topInfo)
         bottomInfo = fixInfoString(bottomInfo)
-        name = name.strip()
-        create_barcode(code, name)
-        code = fixInfoString(code)
-        tex = open(tmp + name + ".tex", "w")
-        qr = tmp + name + "qr.pdf"
+        fileName = fileName.strip()
+        create_barcode(fileName)
+        id = fixIDString(id)
+        tex = open(tmp + fileName + ".tex", "w")
+        qr = tmp + fileName + "qr.pdf"
         tex.write("""\documentclass[a4paper]{article}
 \usepackage{graphicx}
 \usepackage{tabularx}
@@ -120,17 +105,16 @@ def create_barcodes(fileNames, qbicCodes, topInfos, bottomInfos):
 
         \end{tabular}
     \end{table}
-\end{document}\n""" % {"qr": qr, "topInfo": topInfo, "bottomInfo": bottomInfo, "name": code})
+\end{document}\n""" % {"qr": qr, "topInfo": topInfo, "bottomInfo": bottomInfo, "name": id})
         tex.close()
-        os.system("pdflatex -shell-escape -output-directory=" + tmp + " " + tmp + name + ".tex")
-        os.system("mv " + tmp + name + ".pdf " + pdfdir)
-        os.system("rm " + tmp + name + "*")
+        os.system("pdflatex -shell-escape -output-directory=" + tmp + " " + tmp + fileName + ".tex")
+        os.system("mv " + tmp + fileName + ".pdf " + pdfdir)
+        os.system("rm " + tmp + fileName + "*")
 
     print "done"
 
-
 fileNames = []
-qbicCodes = []
+IDInfos = []
 infosTop = []
 infosBottom = []
 
@@ -142,8 +126,8 @@ if arglen % 4 > 0:
 
 print sys.argv
 for i in xrange(1, arglen, 4):
-    qbicCodes.append(sys.argv[i])
-    fileNames.append(sys.argv[i + 1])
+    fileNames.append(sys.argv[i])
+    IDInfos.append(sys.argv[i + 1])
     infosTop.append(sys.argv[i + 2])
     infosBottom.append(sys.argv[i + 3])
-create_barcodes(fileNames, qbicCodes, infosTop, infosBottom)
+create_barcodes(fileNames, IDInfos, infosTop, infosBottom)
