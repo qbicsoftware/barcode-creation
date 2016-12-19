@@ -1,8 +1,11 @@
+
+# coding: utf8
 import os
 import sys
 import csv
 import time
 import datetime
+import json
 from PyRTFloc import *
 
 BASE = os.path.dirname(sys.argv[0])+"/"
@@ -22,9 +25,33 @@ RESULTS_FOLDER = properties["barcode.results"]
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('_%Y%b%d')
 
-PRJ = sys.argv[3][1:5]
-firstCol = sys.argv[1]
-secondCol = sys.argv[2]
+def byteify(input):
+    if isinstance(input, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [byteify(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
+
+with open(sys.argv[1],'r') as f:
+    obj = byteify(json.loads(f.read()))
+
+PRJ = obj["project_code"]
+projectName = obj["project_name"]
+investigator = obj["investigator"]
+contact = obj["contact"]
+#inv.put("first", investigator.getFirstName());
+#inv.put("last", investigator.getLastName());
+#inv.put("phone", investigator.getPhone());
+firstCol = obj["cols"][0]
+secondCol = obj["cols"][1]
+
+#PRJ = sys.argv[3][1:5]
+#firstCol = sys.argv[1]
+#secondCol = sys.argv[2]
 
 BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
 pngdir = os.path.join(BASEDIR, "png/")
@@ -33,6 +60,9 @@ sheet_path=BASEDIR+"/documents/sample_sheets"
 outfile=sheet_path+"/sample_sheet_"+PRJ+st
 
 os.system('mkdir -p '+sheet_path)
+
+def getPersonLine(personObject):
+	return personObject["first"]+" "+personObject["last"]+" - Tel: "+personObject["phone"]
 
 def MakeDoc() :
 	doc     = Document()
@@ -51,6 +81,28 @@ def MakeDoc() :
 	no_edge = BorderPS( width=1, style=BorderPS.HAIRLINE )
 	no_frame = FramePS ( thin_edge, no_edge, no_edge, no_edge)
 	TabPS.DEFAULT_WIDTH = 800
+
+	#header = Table(TabPS.DEFAULT_WIDTH * 6, TabPS.DEFAULT_WIDTH * 6)
+	if projectName:
+		nameCell = Paragraph( projectName )
+		section.append(nameCell)
+	if investigator:
+		p1 = Paragraph()
+		p1.append("Principal Investigator")
+		p2 = Paragraph()
+		p2.append(getPersonLine(investigator))
+		section.append(p1)
+		section.append(p2)
+	if contact:
+		p3 = Paragraph()
+		p3.append("Contact Person")
+		p4 = Paragraph()
+		p4.append(getPersonLine(contact))
+		section.append(p3)
+		section.append(p4)
+
+	#section.append(header)
+
 	table = Table( TabPS.DEFAULT_WIDTH * 4, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 2 )
 	c1 = Cell( Paragraph( 'Barcode' ), thin_frame )
 	c2 = Cell( Paragraph( firstCol ), thin_frame )
@@ -63,9 +115,9 @@ def MakeDoc() :
 		i+=1
 		section.append(table)
 		table = Table (TabPS.DEFAULT_WIDTH * 12)
-		if(name in cats):
-			c1 = Cell( Paragraph( cats[name] ), thin_frame ) 
-			table.AddRow(c1)
+		#if(name in cats):
+		#	c1 = Cell( Paragraph( cats[name] ), thin_frame ) 
+		#	table.AddRow(c1)
 		image = Image( pngdir+'/'+ name +'.png' , width=2*72)
 		c1 = Cell( Paragraph( image ), thin_frame ) 
 		section.append(table)
@@ -83,29 +135,35 @@ def OpenFile( name ) :
 sample_name=[]
 description=[]
 derived=[]
-cats={}
-cat = False
-currCat = ""
-i = 0
-for word in sys.argv[3:]:
-	if(word.startswith("-c")):
-		cat = True
-	elif(cat):
-		cat = False
-		currCat = word
-	elif(i==0):
-		word = word.strip()
-		if(currCat!=""):
-			cats[word] = currCat
-			currCat=""
-		sample_name.append(word)
-		i+=1
-	elif(i==1):
-		description.append(word)
-		i+=1
-	else:
-		derived.append(word)
-		i=0
+
+for sample in obj["samples"]:
+	sample_name.append(sample["code"])
+	description.append(sample["info"])
+	derived.append(sample["alt_info"])
+
+#cats={}
+#cat = False
+#currCat = ""
+#i = 0
+f#or word in sys.argv[3:]:
+#	if(word.startswith("-c")):
+#		cat = True
+#	elif(cat):
+#		cat = False
+#		currCat = word
+#	elif(i==0):
+#		word = word.strip()
+#		if(currCat!=""):
+#			cats[word] = currCat
+#			currCat=""
+#		sample_name.append(word)
+#		i+=1
+#	elif(i==1):
+#		description.append(word)
+#		i+=1
+#	else:
+#		derived.append(word)
+#		i=0
 
 DR = Renderer()
 
