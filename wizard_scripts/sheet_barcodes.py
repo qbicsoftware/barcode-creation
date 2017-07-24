@@ -21,7 +21,7 @@ TMP_FOLDER = properties["tmp.folder"]
 RESULTS_FOLDER = properties["barcode.results"]
 PS_BLANK_SCRIPT = BASE+'barcodes/blank.ps'
 
-PRJ = sys.argv[1][1:5]
+PRJ = sys.argv[1][0:5]
 BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
 
 pngdir = os.path.join(BASEDIR, "png/")
