@@ -29,7 +29,7 @@ PS_SCRIPT_FOLDER = properties["barcode.postscript"]
 TMP_FOLDER = properties["tmp.folder"]
 RESULTS_FOLDER = properties["barcode.results"]
 
-PRJ = sys.argv[1][6:10] #mind the file name prefix
+PRJ = sys.argv[1][5:10] #mind the file name prefix
 BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
 
 pdfdir = os.path.join(BASEDIR, "pdf/")
