@@ -64,10 +64,15 @@ def create_barcode(name):
     os.system("rm " + tmp + psFile)
 
 def fixInfoString(info):
-    return info[:21].replace("_", "\_").replace('#', '\#')
+    info = info[:21]
+    return escapeTexSymbols(info)
+
+def escapeTexSymbols(string):
+    return string.replace("_", "\_").replace('#', '\#').replace('&','\&')
 
 def fixIDString(id):
-    return id[:15].replace("_", "\_").replace('#', '\#')
+    id = id[:15]
+    return escapeTexSymbols(id)
 
 def create_barcodes(fileNames, IDInfos, topInfos, bottomInfos):
     for (fileName, id, topInfo, bottomInfo) in zip(fileNames, IDInfos, topInfos, bottomInfos):
