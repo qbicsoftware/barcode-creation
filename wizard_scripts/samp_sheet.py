@@ -8,10 +8,10 @@ import datetime
 import json
 from PyRTFloc import *
 
-BASE = os.path.dirname(sys.argv[0])+"/"
+BASE = os.path.dirname(sys.argv[0])
 
 # Initalization of properties, place file with path in this directory or change
-PROPERTIES_FILE_PATH = fline=open(BASE+"properties_path.txt").readline().rstrip()
+PROPERTIES_FILE_PATH = fline=open(os.path.join(BASE,"properties_path.txt")).readline().rstrip()
 
 properties = {}
 
@@ -73,6 +73,10 @@ def MakeDoc() :
 	#	text can be added directly to the section
 	#	a paragraph object is create as needed
 
+	qbic = Image( os.path.join(BASE, 'qbic_banner.png') , width=500)
+	banner = Paragraph( qbic )
+	section.append(banner)
+
 	ts = time.time()
 	st = datetime.datetime.fromtimestamp(ts).strftime('%d %b, %Y')
 	section.append( 'Sample sheet QBiC project: ' + PRJ + " "+st)
@@ -80,9 +84,8 @@ def MakeDoc() :
 	thin_frame  = FramePS( thin_edge,  thin_edge,  thin_edge,  thin_edge )
 	no_edge = BorderPS( width=1, style=BorderPS.HAIRLINE )
 	no_frame = FramePS ( thin_edge, no_edge, no_edge, no_edge)
-	TabPS.DEFAULT_WIDTH = 800
+	TabPS.DEFAULT_WIDTH = 400
 
-	#header = Table(TabPS.DEFAULT_WIDTH * 6, TabPS.DEFAULT_WIDTH * 6)
 	if projectName:
 		nameCell = Paragraph( projectName )
 		section.append(nameCell)
@@ -101,9 +104,7 @@ def MakeDoc() :
 		section.append(p3)
 		section.append(p4)
 
-	#section.append(header)
-
-	table = Table( TabPS.DEFAULT_WIDTH * 4, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 2 )
+	table = Table( TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6 )
 	c1 = Cell( Paragraph( 'Barcode' ), thin_frame )
 	c2 = Cell( Paragraph( firstCol ), thin_frame )
 	c3 = Cell( Paragraph( secondCol ), thin_frame )
@@ -111,17 +112,12 @@ def MakeDoc() :
 	table.AddRow(c1, c2, c3, c4)
 	#table.AddRow(c2,c3,c4)
 	i = -1
+	section.append(table)
+	table = Table( TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6 )
 	for name in sample_name:
 		i+=1
-		section.append(table)
-		table = Table (TabPS.DEFAULT_WIDTH * 12)
-		#if(name in cats):
-		#	c1 = Cell( Paragraph( cats[name] ), thin_frame ) 
-		#	table.AddRow(c1)
-		image = Image( pngdir+'/'+ name +'.png' , width=2*72)
+		image = Image( os.path.join(pngdir, name +'.png') , width=2*72)
 		c1 = Cell( Paragraph( image ), thin_frame ) 
-		section.append(table)
-		table = Table( TabPS.DEFAULT_WIDTH * 4, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 3, TabPS.DEFAULT_WIDTH * 2 )
 		c2 = Cell(Paragraph (description[i]), thin_frame )
 		c3 = Cell(Paragraph (derived[i]), thin_frame )
 		c4 = Cell(Paragraph (str("")), thin_frame )
@@ -140,30 +136,6 @@ for sample in obj["samples"]:
 	sample_name.append(sample["code"])
 	description.append(sample["info"])
 	derived.append(sample["alt_info"])
-
-#cats={}
-#cat = False
-#currCat = ""
-#i = 0
-f#or word in sys.argv[3:]:
-#	if(word.startswith("-c")):
-#		cat = True
-#	elif(cat):
-#		cat = False
-#		currCat = word
-#	elif(i==0):
-#		word = word.strip()
-#		if(currCat!=""):
-#			cats[word] = currCat
-#			currCat=""
-#		sample_name.append(word)
-#		i+=1
-#	elif(i==1):
-#		description.append(word)
-#		i+=1
-#	else:
-#		derived.append(word)
-#		i=0
 
 DR = Renderer()
 
