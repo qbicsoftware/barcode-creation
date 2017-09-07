@@ -13,10 +13,10 @@ import subprocess
 import binascii, textwrap
 import time
 
-BASE = os.path.dirname(sys.argv[0])
+BASE = os.path.dirname(sys.argv[0])+"/"
 
 # Initalization of properties, place file with path in this directory or change
-PROPERTIES_FILE_PATH = fline=open(os.path.join(BASE,"properties_path.txt")).readline().rstrip()
+PROPERTIES_FILE_PATH = fline=open(BASE+"properties_path.txt").readline().rstrip()
 
 properties = {}
 
@@ -116,7 +116,7 @@ def create_barcodes(fileNames, IDInfos, topInfos, bottomInfos):
         os.system("mv " + tmp + fileName + ".pdf " + pdfdir)
         os.system("rm " + tmp + fileName + "*")
 
-    print "done"
+    print ("done")
 
 fileNames = []
 IDInfos = []
@@ -126,10 +126,10 @@ infosBottom = []
 # reads in parameters from the command line
 arglen = len(sys.argv) - 1
 if arglen % 4 > 0:
-    print "USAGE: python tube_barcodes.py [List of name strings to encode] [List of barcodes] [List of info strings] [List of info strings]\nAll lists must have the same length."
+    print ("USAGE: python tube_barcodes.py [List of name strings to encode] [List of barcodes] [List of info strings] [List of info strings]\nAll lists must have the same length.")
     sys.exit()
 
-print sys.argv
+print (sys.argv)
 for i in xrange(1, arglen, 4):
     fileNames.append(sys.argv[i])
     IDInfos.append(sys.argv[i + 1])

@@ -46,7 +46,7 @@ def test_sheet():
   script = os.path.join(path, "samp_sheet.py")
   project = random_project_code()
   codes = test_sheet_images(3, project)
-  print project
+  print (project)
   investigator = {"first" : "Andreas", "last" : "Friedrich", "phone" : "12345123123"}
   contact = {"first" : "Chris", "last" : "Mohr", "phone" : "98328472384"}
   samples = []
@@ -89,12 +89,12 @@ def reset_config_path():
 if __name__ == '__main__':
   day = datetime.datetime.today().weekday()
   if day == 2:
-    print "It is Wednesday my dudes!" #sorry
+    print ("It is Wednesday my dudes!") #sorry
 
-  print "Setting test environment."
+  print ("Setting test environment.")
   set_test_paths()
-  print "Testing"
+  print ("Testing")
   test_tubes(2)
   test_sheet()
-  print "Resetting paths to previous configuration."
+  print ("Resetting paths to previous configuration.")
   reset_config_path()

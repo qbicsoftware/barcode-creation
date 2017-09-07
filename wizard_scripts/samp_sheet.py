@@ -145,5 +145,5 @@ DR.Write( doc1, OpenFile( outfile ) )
 
 os.system("mv "+outfile+".rtf "+outfile+".doc")
 
-print "\nDone. Sample sheet created in: "+outfile+"\n";
+print ("\nDone. Sample sheet created in: "+outfile+"\n")
 
