@@ -1,6 +1,7 @@
 # tests different barcode scripts with randomly generated data
 import json, os, random, string, datetime
 
+python = "python2.7"
 alphabet = string.ascii_uppercase.replace("Z","").replace("Y","")
 path = os.path.dirname(os.path.realpath(__file__))
 
@@ -27,7 +28,7 @@ def test_tubes(amount):
     name = str(i+1).zfill(4)+"_"+code
     info1 = random_info()
     info2 = random_info()
-    cmd = "python "+script+" "+name+" "+code+" "+info1+" "+info2
+    cmd = python+" "+script+" "+name+" "+code+" "+info1+" "+info2
     os.system(cmd)
 
 def test_sheet_images(amount, project = None):
@@ -39,7 +40,7 @@ def test_sheet_images(amount, project = None):
     else:
       code = random_barcode()
     codes.append(code)
-    os.system("python "+script+" "+code)
+    os.system(python+" "+script+" "+code)
   return codes
 
 def test_sheet():
@@ -57,7 +58,7 @@ def test_sheet():
   jsonPath = 'test.json'
   with open(jsonPath, 'w') as outfile:
     json.dump(obj, outfile)
-  os.system("python "+script+" "+jsonPath)
+  os.system(python+" "+script+" "+jsonPath)
 
 def set_test_paths():
   test_config_info = os.path.join(path, "test_path.txt")
