@@ -12,6 +12,6 @@ We recommend to move barcode.ps to /usr/share/postscriptbarcode/ or similar. The
 
 barcode.postscript = /usr/share/postscriptbarcode/
 
-barcode.results = /Users/<x>/Desktop/barcodes/
+barcode.results = /Users/[user]/Desktop/barcodes/
 
 tmp.folder = /tmp/
