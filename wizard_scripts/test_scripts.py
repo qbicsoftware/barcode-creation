@@ -28,7 +28,7 @@ def test_tubes(amount):
     name = str(i+1).zfill(4)+"_"+code
     info1 = random_info()
     info2 = random_info()
-    cmd = python+" "+script+" "+name+" "+code+" "+info1+" "+info2
+    cmd = python+" "+script+" "+name+" "+code+" "+info1+" "+info2+" testmode"
     os.system(cmd)
 
 def test_sheet_images(amount, project = None):
@@ -40,7 +40,7 @@ def test_sheet_images(amount, project = None):
     else:
       code = random_barcode()
     codes.append(code)
-    os.system(python+" "+script+" "+code)
+    os.system(python+" "+script+" "+code+" testmode")
   return codes
 
 def test_sheet():
@@ -58,7 +58,8 @@ def test_sheet():
   jsonPath = 'test.json'
   with open(jsonPath, 'w') as outfile:
     json.dump(obj, outfile)
-  os.system(python+" "+script+" "+jsonPath)
+  os.system(python+" "+script+" "+jsonPath+" testmode")
+  os.remove(jsonPath)
 
 def set_test_paths():
   test_config_info = os.path.join(path, "test_path.txt")
@@ -88,14 +89,10 @@ def reset_config_path():
   os.system("cp "+config+".backup "+config)
 
 if __name__ == '__main__':
-  day = datetime.datetime.today().weekday()
-  if day == 2:
-    print ("It is Wednesday my dudes!") #sorry
-
-  print ("Setting test environment.")
-  set_test_paths()
+  #print ("Setting test environment.")
+  #set_test_paths()
   print ("Testing")
   test_tubes(2)
   test_sheet()
-  print ("Resetting paths to previous configuration.")
-  reset_config_path()
+  #print ("Resetting paths to previous configuration.")
+  #reset_config_path()

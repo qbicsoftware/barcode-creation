@@ -20,6 +20,11 @@ PROPERTIES_FILE_PATH = fline=open(BASE+"properties_path.txt").readline().rstrip(
 
 properties = {}
 
+testmode = sys.argv[-1]=="testmode"
+if testmode:
+    sys.argv = sys.argv[:-1] # remove testmode parameter
+    PROPERTIES_FILE_PATH = os.path.join(BASE,"test.properties")
+
 for line in open(PROPERTIES_FILE_PATH):
     splt = line.strip().split('=')
     if len(splt) == 2:
