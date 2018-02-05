@@ -1,1 +1,0 @@
-/Users/frieda/git/barcode-creation/wizard_scripts/tests/barcode.properties
