@@ -13,6 +13,7 @@ We recommend to move barcode.ps to /usr/share/postscriptbarcode/ or similar.
 ## Production Config
 
 To run barcode creation from a portal instance, we recommend to put these config settings in the same file qPortal uses for other config parameters (see our qPortal Howto):
+
 barcode.postscript = /usr/share/postscriptbarcode/
 
 barcode.results = [path where resulting barcode files should end up]
