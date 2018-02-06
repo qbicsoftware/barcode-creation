@@ -8,10 +8,19 @@ Download barcode.ps from the monolithic release of postscriptbarcode:
 
 https://github.com/bwipp/postscriptbarcode/releases/tag/2017-07-10
 
-We recommend to move barcode.ps to /usr/share/postscriptbarcode/ or similar. The path to this script needs to be set in the config file linked in test_path.txt (for the testing config) as well as properties_path.txt (production config) along with a user-defined setup for the following paths:
+We recommend to move barcode.ps to /usr/share/postscriptbarcode/ or similar.
 
+## Production Config
+
+To run barcode creation from a portal instance, we recommend to put these config settings in the same file qPortal uses for other config parameters (see our qPortal Howto):
 barcode.postscript = /usr/share/postscriptbarcode/
 
-barcode.results = /Users/[user]/Desktop/barcodes/
+barcode.results = [path where resulting barcode files should end up]
 
-tmp.folder = /tmp/
+tmp.folder = [path to folder to write intermediate files used to create pdfs and pngs]
+
+You should link to this config file path in properties_path.txt and place it in wizard_scripts
+
+## Testing Config
+
+To test locally, put the same configuration parameters in a file test.properties and place it in wizard_scripts
