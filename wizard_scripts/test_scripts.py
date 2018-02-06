@@ -2,24 +2,29 @@
 import json, os, random, string, datetime
 
 python = "python2.7"
-alphabet = string.ascii_uppercase.replace("Z","").replace("Y","")
+ALPH = string.ascii_uppercase.replace("Z","").replace("Y","")
 path = os.path.dirname(os.path.realpath(__file__))
 
 #json_data = json.dumps(data)
 
+def random_string(length, alphabet):
+  return ''.join(random.choice(alphabet) for _ in range(length))
+
 # does not create correct checksums!
 def random_barcode(project = None):
+  digits = random_string(3, string.digits)
+  end = random_string(1, ALPH) + random_string(1, ALPH + string.digits)
   if project:
-    return project+''.join(random.choice(alphabet + string.digits) for _ in range(5))
+    return project+digits+end
   else:
-    return "Q"+''.join(random.choice(alphabet + string.digits) for _ in range(9))
+    return random_project_code() + digits + end
 
 def random_project_code():
-  return "Q"+''.join(random.choice(alphabet + string.digits) for _ in range(4))
+  return "Q" + random_string(4, ALPH + string.digits)
 
 def random_info():
   length = random.randint(1,20)
-  return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
+  return random_string(length, ALPH + string.digits)
 
 def test_tubes(amount):
   script = os.path.join(path, "tube_barcodes.py")
@@ -61,38 +66,11 @@ def test_sheet():
   os.system(python+" "+script+" "+jsonPath+" testmode")
   os.remove(jsonPath)
 
-def set_test_paths():
-  test_config_info = os.path.join(path, "test_path.txt")
-  config_info = os.path.join(path, "properties_path.txt")
-  testfolder = os.path.join(path, "tests")
-
-  with open(os.path.join(path,"properties_path.txt")) as pp:
-    config_path = pp.readline().strip()
-  pp.close()
-  config = open(config_path)
-  settings = {}
-  for line in config:
-    if "=" in line:
-      line = line.split("=")
-      settings[line[0].strip()] = line[1].strip()
-  config.close()
-  os.system("cp "+config_info+" "+config_info+".backup")
-  with open(os.path.join(testfolder,"barcode.properties"), 'w') as outfile:
-    outfile.write("barcode.postscript = "+settings["barcode.postscript"]+"\n")
-    outfile.write("barcode.results = "+testfolder+"\n")
-    outfile.write("tmp.folder = "+os.path.join(testfolder,"tmp")+"\n")
-  outfile.close()
-  os.system("cp "+test_config_info+" "+config_info)
-
 def reset_config_path():
   config = str(os.path.join(path, "properties_path.txt"))
   os.system("cp "+config+".backup "+config)
 
 if __name__ == '__main__':
-  #print ("Setting test environment.")
-  #set_test_paths()
   print ("Testing")
   test_tubes(2)
   test_sheet()
-  #print ("Resetting paths to previous configuration.")
-  #reset_config_path()
