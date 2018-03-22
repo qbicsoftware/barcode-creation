@@ -13,6 +13,7 @@ BASE = os.path.dirname(sys.argv[0])
 # Initalization of properties, place file with path in this directory or change
 PROPERTIES_FILE_PATH = fline=open(os.path.join(BASE,"properties_path.txt")).readline().rstrip()
 
+GERMAN_TO_RTF = {"Ä" : "\\'c4", "Ö" : "\\'d6", "Ü" : "\\'dc", "ß" : "\\'df", "ä" : "\\'e4", "ö" : "\\'f6", "ü" : "\\'fc"}
 properties = {}
 
 testmode = sys.argv[-1]=="testmode"
@@ -29,6 +30,11 @@ RESULTS_FOLDER = properties["barcode.results"]
 
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('_%Y%b%d')
+
+def replace_all_in_dictionary(text, dic):
+    for i, j in dic.iteritems():
+        text = text.replace(i, j)
+    return text
 
 def byteify(input):
     if isinstance(input, dict):
@@ -67,7 +73,9 @@ outfile=sheet_path+"/sample_sheet_"+PRJ+st
 os.system('mkdir -p '+sheet_path)
 
 def getPersonLine(personObject):
-	return personObject["first"]+" "+personObject["last"]+" - Tel: "+personObject["phone"]
+	person = personObject["first"]+" "+personObject["last"]+" - Tel: "+personObject["phone"]
+	person = replace_all_in_dictionary(person, GERMAN_TO_RTF)
+	return person
 
 def MakeDoc() :
 	doc     = Document()

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # tests different barcode scripts with randomly generated data
 import json, os, random, string, datetime
 
@@ -53,8 +54,8 @@ def test_sheet():
   project = random_project_code()
   codes = test_sheet_images(3, project)
   print (project)
-  investigator = {"first" : "Andreas", "last" : "Friedrich", "phone" : "12345123123"}
-  contact = {"first" : "Chris", "last" : "Mohr", "phone" : "98328472384"}
+  investigator = {"first" : "Ändreas", "last" : "Friedrüfch", "phone" : "12345123123"}
+  contact = {"first" : "Chriß", "last" : "Möhr", "phone" : "98328472384"}
   samples = []
   for i in range(3):
     s = {"code" : codes[i], "info" : random_info(), "alt_info" : random_info()}
@@ -66,11 +67,11 @@ def test_sheet():
   os.system(python+" "+script+" "+jsonPath+" testmode")
   os.remove(jsonPath)
 
-def reset_config_path():
-  config = str(os.path.join(path, "properties_path.txt"))
-  os.system("cp "+config+".backup "+config)
+#def reset_config_path():
+#  config = str(os.path.join(path, "properties_path.txt"))
+#  os.system("cp "+config+".backup "+config)
 
 if __name__ == '__main__':
   print ("Testing")
-  test_tubes(2)
+  #test_tubes(2)
   test_sheet()
