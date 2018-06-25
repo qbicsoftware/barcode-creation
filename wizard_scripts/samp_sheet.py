@@ -1,4 +1,3 @@
-
 # coding: utf8
 import os
 import sys
@@ -11,15 +10,15 @@ from PyRTFloc import *
 BASE = os.path.dirname(sys.argv[0])
 
 # Initalization of properties, place file with path in this directory or change
-PROPERTIES_FILE_PATH = fline=open(os.path.join(BASE,"properties_path.txt")).readline().rstrip()
+PROPERTIES_FILE_PATH = fline = open(os.path.join(BASE, "properties_path.txt")).readline().rstrip()
 
-GERMAN_TO_RTF = {"Ä" : "\\'c4", "Ö" : "\\'d6", "Ü" : "\\'dc", "ß" : "\\'df", "ä" : "\\'e4", "ö" : "\\'f6", "ü" : "\\'fc"}
+GERMAN_TO_RTF = {"Ä": "\\'c4", "Ö": "\\'d6", "Ü": "\\'dc", "ß": "\\'df", "ä": "\\'e4", "ö": "\\'f6", "ü": "\\'fc"}
 properties = {}
 
-testmode = sys.argv[-1]=="testmode"
+testmode = sys.argv[-1] == "testmode"
 if testmode:
-    sys.argv = sys.argv[:-1] # remove testmode parameter
-    PROPERTIES_FILE_PATH = os.path.join(BASE,"test.properties")
+    sys.argv = sys.argv[:-1]  # remove testmode parameter
+    PROPERTIES_FILE_PATH = os.path.join(BASE, "test.properties")
 
 for line in open(PROPERTIES_FILE_PATH):
     splt = line.strip().split('=')
@@ -31,10 +30,12 @@ RESULTS_FOLDER = properties["barcode.results"]
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('_%Y%b%d')
 
+
 def replace_all_in_dictionary(text, dic):
     for i, j in dic.iteritems():
         text = text.replace(i, j)
     return text
+
 
 def byteify(input):
     if isinstance(input, dict):
@@ -47,116 +48,178 @@ def byteify(input):
     else:
         return input
 
-with open(sys.argv[1],'r') as f:
+
+with open(sys.argv[1], 'r') as f:
     obj = byteify(json.loads(f.read()))
 
-PRJ = obj["project_code"]
+projectCode = obj["project_code"]
 projectName = obj["project_name"]
 investigator = obj["investigator"]
 contact = obj["contact"]
-#inv.put("first", investigator.getFirstName());
-#inv.put("last", investigator.getLastName());
-#inv.put("phone", investigator.getPhone());
+
+# inv.put("first", investigator.getFirstName());
+# inv.put("last", investigator.getLastName());
+# inv.put("phone", investigator.getPhone());
 firstCol = obj["cols"][0]
 secondCol = obj["cols"][1]
 
-#PRJ = sys.argv[3][1:5]
-#firstCol = sys.argv[1]
-#secondCol = sys.argv[2]
+# PRJ = sys.argv[3][1:5]
+# firstCol = sys.argv[1]
+# secondCol = sys.argv[2]
 
-BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
+BASEDIR = os.path.join(RESULTS_FOLDER, projectCode)
 pngdir = os.path.join(BASEDIR, "png/")
 
-sheet_path=BASEDIR+"/documents/sample_sheets"
-outfile=sheet_path+"/sample_sheet_"+PRJ+st
+sheet_path = BASEDIR + "/documents/sample_sheets"
+outfile = sheet_path + "/sample_sheet_" + projectCode + st
 
-os.system('mkdir -p '+sheet_path)
+os.system('mkdir -p ' + sheet_path)
+
 
 def getPersonLine(personObject):
-	person = personObject["first"]+" "+personObject["last"]+" - Tel: "+personObject["phone"]
-	person = replace_all_in_dictionary(person, GERMAN_TO_RTF)
-	return person
+    # person has a title
+    person = ""
+    if len(personObject["title"]) > 2:
+        person = personObject["title"] + " "
+    person = person + personObject["first_name"] + " " + personObject["last_name"] + ", " + personObject[
+        "group"] + " - Tel: " + personObject["phone"] + " " + personObject["email"]
 
-def MakeDoc() :
-	doc     = Document()
-	ss      = doc.StyleSheet
-	section = Section()
-	doc.Sections.append( section )
+    person = replace_all_in_dictionary(person, GERMAN_TO_RTF)
+    return person
 
-	#	text can be added directly to the section
-	#	a paragraph object is create as needed
 
-	qbic = Image( os.path.join(BASE, 'qbic_banner.png') , width=500)
-	banner = Paragraph( qbic )
-	section.append(banner)
+def getPersonTitleAndName(personObject):
+    full_name = ""
+    if len(personObject["title"]) > 2:
+        full_name = personObject["title"] + " "
+    full_name = full_name + personObject["first_name"] + " " + personObject["last_name"]
 
-	ts = time.time()
-	st = datetime.datetime.fromtimestamp(ts).strftime('%d %b, %Y')
-	section.append( 'Sample sheet QBiC project: ' + PRJ + " "+st)
-	thin_edge  = BorderPS( width=20, style=BorderPS.DOUBLE )
-	thin_frame  = FramePS( thin_edge,  thin_edge,  thin_edge,  thin_edge )
-	no_edge = BorderPS( width=1, style=BorderPS.HAIRLINE )
-	no_frame = FramePS ( thin_edge, no_edge, no_edge, no_edge)
-	TabPS.DEFAULT_WIDTH = 400
+    full_name = replace_all_in_dictionary(full_name, GERMAN_TO_RTF)
+    return full_name
 
-	if projectName:
-		nameCell = Paragraph( projectName )
-		section.append(nameCell)
-	if investigator:
-		p1 = Paragraph()
-		p1.append("Principal Investigator")
-		p2 = Paragraph()
-		p2.append(getPersonLine(investigator))
-		section.append(p1)
-		section.append(p2)
-	if contact:
-		p3 = Paragraph()
-		p3.append("Contact Person")
-		p4 = Paragraph()
-		p4.append(getPersonLine(contact))
-		section.append(p3)
-		section.append(p4)
+def getPersonValue(personObject, value):
+    val = personObject[value]
+    val = replace_all_in_dictionary(val, GERMAN_TO_RTF)
+    return val
 
-	table = Table( TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6 )
-	c1 = Cell( Paragraph( 'Barcode' ), thin_frame )
-	c2 = Cell( Paragraph( firstCol ), thin_frame )
-	c3 = Cell( Paragraph( secondCol ), thin_frame )
-	c4 = Cell( Paragraph( 'Notes' ), thin_frame )
-	table.AddRow(c1, c2, c3, c4)
-	#table.AddRow(c2,c3,c4)
-	i = -1
-	section.append(table)
-	table = Table( TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6 )
-	for name in sample_name:
-		i+=1
-		image = Image( os.path.join(pngdir, name +'.png') , width=2*72)
-		c1 = Cell( Paragraph( image ), thin_frame ) 
-		c2 = Cell(Paragraph (description[i]), thin_frame )
-		c3 = Cell(Paragraph (derived[i]), thin_frame )
-		c4 = Cell(Paragraph (str("")), thin_frame )
-		table.AddRow(c1, c2, c3, c4)
-	section.append(table)
-	return doc
 
-def OpenFile( name ) :
-	return file( '%s.rtf' % name, 'w' )
+def MakeDoc():
+    doc = Document()
+    ss = doc.StyleSheet
+    section = Section()
+    doc.Sections.append(section)
 
-sample_name=[]
-description=[]
-derived=[]
+    #	text can be added directly to the section
+    #	a paragraph object is create as needed
+
+    qbic = Image(os.path.join(BASE, 'qbic_banner.png'), width=500)
+    banner = Paragraph(qbic)
+    section.append(banner)
+
+    ################################################################
+    pi_contact_table = Table(TabPS.DEFAULT_WIDTH * 7, TabPS.DEFAULT_WIDTH * 7)
+
+    # PI
+    pi_paragraph = Paragraph()
+    pi_title_name = getPersonTitleAndName(investigator)
+    pi_group = getPersonValue(investigator, "group")
+    pi_street = getPersonValue(investigator, "street")
+    pi_city = getPersonValue(investigator, "city")
+    pi_zip_code = getPersonValue(investigator, "zip_code")
+    pi_phone = getPersonValue(investigator, "phone")
+    pi_email = getPersonValue(investigator, "email")
+
+    pi_text = TEXT("PI: " + " \line "
+                   + pi_title_name + " \line "
+                   + pi_group + " \line "
+                   + pi_street + " \line "
+                   + pi_zip_code + " " + pi_city + " \line " + " \line "
+                   + pi_phone + " \line "
+                   + pi_email)
+    pi_paragraph.append(pi_text)
+
+    pi_cell = Cell(pi_paragraph)
+
+    # Contact
+    contact_paragraph = Paragraph()
+    contact_title_name = getPersonTitleAndName(contact)
+    contact_group = getPersonValue(contact, "group")
+    contact_street = getPersonValue(contact, "street")
+    contact_city = getPersonValue(contact, "city")
+    contact_zip_code = getPersonValue(contact, "zip_code")
+    contact_phone = getPersonValue(contact, "phone")
+    contact_email = getPersonValue(contact, "email")
+
+    contact_text = TEXT("QBiC contact:" + " \line "
+                        + contact_title_name + " \line "
+                        + contact_group + " \line "
+                        + contact_street + " \line "
+                        + contact_zip_code + " " + contact_city + " \line " + " \line "
+                        + contact_phone + " \line "
+                        + contact_email)
+    contact_paragraph.append(contact_text)
+
+    contact_cell = Cell(contact_paragraph)
+
+    pi_contact_table.AddRow(pi_cell, contact_cell)
+    section.append(pi_contact_table)
+
+    ################################################################
+
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%d %b, %Y')
+    section.append('Sample sheet QBiC project: ' + projectCode + " " + st)
+    thin_edge = BorderPS(width=20, style=BorderPS.DOUBLE)
+    thin_frame = FramePS(thin_edge, thin_edge, thin_edge, thin_edge)
+    no_edge = BorderPS(width=1, style=BorderPS.HAIRLINE)
+    no_frame = FramePS(thin_edge, no_edge, no_edge, no_edge)
+    TabPS.DEFAULT_WIDTH = 400
+
+    if projectName:
+        nameCell = Paragraph(projectName)
+        section.append(nameCell)
+
+    table = Table(TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6)
+    c1 = Cell(Paragraph('Barcode'), thin_frame)
+    c2 = Cell(Paragraph(firstCol), thin_frame)
+    c3 = Cell(Paragraph(secondCol), thin_frame)
+    c4 = Cell(Paragraph('Notes'), thin_frame)
+    table.AddRow(c1, c2, c3, c4)
+    # table.AddRow(c2,c3,c4)
+    i = -1
+    section.append(table)
+    table = Table(TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6)
+    for name in sample_name:
+        i += 1
+        image = Image(os.path.join(pngdir, name + '.png'), width=2 * 72)
+        c1 = Cell(Paragraph(image), thin_frame)
+        c2 = Cell(Paragraph(description[i]), thin_frame)
+        c3 = Cell(Paragraph(derived[i]), thin_frame)
+        c4 = Cell(Paragraph(str("")), thin_frame)
+        table.AddRow(c1, c2, c3, c4)
+    section.append(table)
+    return doc
+
+
+def OpenFile(name):
+    return file('%s.rtf' % name, 'w')
+
+
+sample_name = []
+description = []
+derived = []
 
 for sample in obj["samples"]:
-	sample_name.append(sample["code"])
-	description.append(sample["info"])
-	derived.append(sample["alt_info"])
+    sample_name.append(sample["code"])
+    description.append(sample["info"])
+    derived.append(sample["alt_info"])
 
 DR = Renderer()
 
 doc1 = MakeDoc()
 
-DR.Write( doc1, OpenFile( outfile ) )
+DR.Write(doc1, OpenFile(outfile))
 
-os.system("mv "+outfile+".rtf "+outfile+".doc")
+os.system("mv " + outfile + ".rtf " + outfile + ".doc")
 
-print ("\nDone. Sample sheet created in: "+outfile+"\n")
-
+print("\nDone. Sample sheet created in: " + outfile + "\n")
