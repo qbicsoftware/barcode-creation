@@ -90,18 +90,22 @@ def getPersonLine(personObject):
 
 def getPersonTitleAndName(personObject):
     full_name = ""
-    if len(personObject["title"]) > 2:
-        full_name = personObject["title"] + " "
-    full_name = full_name + personObject["first_name"] + " " + personObject["last_name"]
+    if "title" in personObject:
+        if len(personObject["title"]) > 2:
+            full_name = personObject["title"] + " "
+        full_name = full_name + personObject["first_name"] + " " + personObject["last_name"]
+        full_name = replace_all_in_dictionary(full_name, GERMAN_TO_RTF)
 
-    full_name = replace_all_in_dictionary(full_name, GERMAN_TO_RTF)
     return full_name
 
 
 def getPersonValue(personObject, value):
-    val = personObject[value]
-    val = replace_all_in_dictionary(val, GERMAN_TO_RTF)
-    return val
+    if value in personObject:
+        val = personObject[value]
+        val = replace_all_in_dictionary(val, GERMAN_TO_RTF)
+        return val
+    else:
+        return ""
 
 
 def MakeDoc():
