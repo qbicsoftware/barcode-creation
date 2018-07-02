@@ -97,6 +97,7 @@ def getPersonTitleAndName(personObject):
     full_name = replace_all_in_dictionary(full_name, GERMAN_TO_RTF)
     return full_name
 
+
 def getPersonValue(personObject, value):
     val = personObject[value]
     val = replace_all_in_dictionary(val, GERMAN_TO_RTF)
@@ -150,14 +151,16 @@ def MakeDoc():
     contact_phone = getPersonValue(contact, "phone")
     contact_email = getPersonValue(contact, "email")
 
-    contact_text = TEXT("QBiC contact:" + " \line "
-                        + contact_title_name + " \line "
-                        + contact_group + " \line "
-                        + contact_street + " \line "
-                        + contact_zip_code + " " + contact_city + " \line " + " \line "
-                        + contact_phone + " \line "
-                        + contact_email)
-    contact_paragraph.append(contact_text)
+    contact_text = TEXT("QBiC contact:" + "\line")
+    contact_bold_title_name_text = B(contact_title_name)
+    empty_line = TEXT("\line")
+    contact_further_info_text = TEXT(contact_group + " \line "
+                                     + contact_street + " \line "
+                                     + contact_zip_code + " " + contact_city + " \line " + " \line "
+                                     + contact_phone + " \line "
+                                     + contact_email)
+
+    contact_paragraph.append(contact_text, contact_bold_title_name_text, empty_line, empty_line, contact_further_info_text)
 
     contact_cell = Cell(contact_paragraph)
 
