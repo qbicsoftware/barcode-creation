@@ -102,6 +102,8 @@ def getPersonTitleAndName(personObject):
 def getPersonValue(personObject, value):
     if value in personObject:
         val = personObject[value]
+        if val is None:
+            return ""
         val = replace_all_in_dictionary(val, GERMAN_TO_RTF)
         return val
     else:
@@ -124,8 +126,12 @@ def MakeDoc():
     ################################################################
     pi_contact_table = Table(TabPS.DEFAULT_WIDTH * 7, TabPS.DEFAULT_WIDTH * 7)
 
+    empty_line = TEXT(" \line ")
+
     # PI
     pi_paragraph = Paragraph()
+    pi_header = "Principal Investigator:"
+    pi_header_bold = B(pi_header)
     pi_title_name = getPersonTitleAndName(investigator)
     pi_group = getPersonValue(investigator, "group")
     pi_street = getPersonValue(investigator, "street")
@@ -134,19 +140,20 @@ def MakeDoc():
     pi_phone = getPersonValue(investigator, "phone")
     pi_email = getPersonValue(investigator, "email")
 
-    pi_text = TEXT("PI: " + " \line "
-                   + pi_title_name + " \line "
+    pi_text = TEXT(pi_title_name + " \line " + " \line "
                    + pi_group + " \line "
                    + pi_street + " \line "
                    + pi_zip_code + " " + pi_city + " \line " + " \line "
                    + pi_phone + " \line "
                    + pi_email)
-    pi_paragraph.append(pi_text)
+    pi_paragraph.append(pi_header_bold, empty_line, pi_text)
 
     pi_cell = Cell(pi_paragraph)
 
     # Contact
     contact_paragraph = Paragraph()
+    contact_header = "QBiC contact:"
+    contact_header_bold = B(contact_header)
     contact_title_name = getPersonTitleAndName(contact)
     contact_group = getPersonValue(contact, "group")
     contact_street = getPersonValue(contact, "street")
@@ -155,16 +162,14 @@ def MakeDoc():
     contact_phone = getPersonValue(contact, "phone")
     contact_email = getPersonValue(contact, "email")
 
-    contact_text = TEXT("QBiC contact:" + "\line")
     contact_bold_title_name_text = B(contact_title_name)
-    empty_line = TEXT("\line")
     contact_further_info_text = TEXT(contact_group + " \line "
                                      + contact_street + " \line "
                                      + contact_zip_code + " " + contact_city + " \line " + " \line "
                                      + contact_phone + " \line "
                                      + contact_email)
 
-    contact_paragraph.append(contact_text, contact_bold_title_name_text, empty_line, empty_line, contact_further_info_text)
+    contact_paragraph.append(contact_header_bold, empty_line, contact_bold_title_name_text, empty_line, empty_line, contact_further_info_text)
 
     contact_cell = Cell(contact_paragraph)
 
@@ -175,7 +180,7 @@ def MakeDoc():
 
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%d %b, %Y')
-    section.append('Sample sheet QBiC project: ' + projectCode + " " + st)
+    section.append('Sample sheet for QBiC project: ' + projectCode + " " + st)
     thin_edge = BorderPS(width=20, style=BorderPS.DOUBLE)
     thin_frame = FramePS(thin_edge, thin_edge, thin_edge, thin_edge)
     no_edge = BorderPS(width=1, style=BorderPS.HAIRLINE)
