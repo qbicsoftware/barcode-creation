@@ -150,7 +150,7 @@ def MakeDoc():
 
     pi_cell = Cell(pi_paragraph)
 
-    # Contact
+    # Contact/PM
     contact_paragraph = Paragraph()
     contact_header = "QBiC contact:"
     contact_header_bold = B(contact_header)
@@ -162,14 +162,13 @@ def MakeDoc():
     contact_phone = getPersonValue(contact, "phone")
     contact_email = getPersonValue(contact, "email")
 
-    contact_bold_title_name_text = B(contact_title_name)
-    contact_further_info_text = TEXT(contact_group + " \line "
+    contact_text = TEXT(contact_group + " \line "
                                      + contact_street + " \line "
                                      + contact_zip_code + " " + contact_city + " \line " + " \line "
                                      + contact_phone + " \line "
                                      + contact_email)
 
-    contact_paragraph.append(contact_header_bold, empty_line, contact_bold_title_name_text, empty_line, empty_line, contact_further_info_text)
+    contact_paragraph.append(contact_header_bold, empty_line, contact_title_name, empty_line, empty_line, contact_text)
 
     contact_cell = Cell(contact_paragraph)
 
@@ -180,16 +179,29 @@ def MakeDoc():
 
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%d %b, %Y')
-    section.append('Sample sheet for QBiC project: ' + projectCode + " " + st)
+
+    headline = 'Sample Sheet for QBiC Project: ' + projectCode + " - "
+    if projectName:
+        headline += projectName + " - " + st
+    else:
+        headline + st
+    headline_bold = B(headline)
+    headline_paragraph = Paragraph()
+    headline_paragraph.append(headline_bold)
+
+    # separate the header from the table
+    line_paragraph = Paragraph()
+    separator_line = "---------------------------------------------------------------------------------------------------------------------------------"
+    line_paragraph.append(separator_line)
+    section.append(line_paragraph)
+    section.append(headline_paragraph)
+    section.append(line_paragraph)
+
     thin_edge = BorderPS(width=20, style=BorderPS.DOUBLE)
     thin_frame = FramePS(thin_edge, thin_edge, thin_edge, thin_edge)
     no_edge = BorderPS(width=1, style=BorderPS.HAIRLINE)
     no_frame = FramePS(thin_edge, no_edge, no_edge, no_edge)
     TabPS.DEFAULT_WIDTH = 400
-
-    if projectName:
-        nameCell = Paragraph(projectName)
-        section.append(nameCell)
 
     table = Table(TabPS.DEFAULT_WIDTH * 8, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 5, TabPS.DEFAULT_WIDTH * 6)
     c1 = Cell(Paragraph('Barcode'), thin_frame)
