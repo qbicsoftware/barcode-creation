@@ -216,7 +216,7 @@ def MakeDoc():
     for name in sample_name:
         i += 1
         image = Image(os.path.join(pngdir, name + '.png'), width=2 * 72)
-        c1 = Cell(Paragraph(image), thin_frame)
+        c1 = Cell(Paragraph(empty_line, image, empty_line), thin_frame)
         c2 = Cell(Paragraph(description[i]), thin_frame)
         c3 = Cell(Paragraph(derived[i]), thin_frame)
         c4 = Cell(Paragraph(str("")), thin_frame)
