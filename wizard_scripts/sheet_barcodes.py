@@ -4,12 +4,17 @@ import subprocess
 import binascii, textwrap
 import time
 
-BASE = os.path.dirname(sys.argv[0])+"/"
+BASE = os.path.dirname(sys.argv[0])
 
 # Initalization of properties, place file with path in this directory or change
-PROPERTIES_FILE_PATH = fline=open(BASE+"properties_path.txt").readline().rstrip()
+PROPERTIES_FILE_PATH = fline=open(os.path.join(BASE,"properties_path.txt")).readline().rstrip()
 
 properties = {}
+
+testmode = sys.argv[-1]=="testmode"
+if testmode:
+    sys.argv = sys.argv[:-1] # remove testmode parameter
+    PROPERTIES_FILE_PATH = os.path.join(BASE,"test.properties")
 
 for line in open(PROPERTIES_FILE_PATH):
     splt = line.strip().split('=')
@@ -19,7 +24,7 @@ for line in open(PROPERTIES_FILE_PATH):
 PS_SCRIPT_FOLDER = properties["barcode.postscript"]
 TMP_FOLDER = properties["tmp.folder"]
 RESULTS_FOLDER = properties["barcode.results"]
-PS_BLANK_SCRIPT = BASE+'barcodes/blank.ps'
+PS_BLANK_SCRIPT = os.path.join(BASE,'barcodes/blank.ps')
 
 PRJ = sys.argv[1][0:5]
 BASEDIR = os.path.join(RESULTS_FOLDER, PRJ)
