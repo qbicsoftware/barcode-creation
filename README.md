@@ -3,6 +3,12 @@ Scripts to create barcodes for tagging samples
 
 Uses postscript and different python scripts to create RTF sample sheets and QR Code for sample tube stickers. Barcode creation scripts are used by qnavigator and the projectwizard portlets.
 
+## Requirements
+
+Python 2.7 (Python 3 is not yet supported!)
+Ghostscript
+Pdflatex
+
 # Instructions
 Download barcode.ps from the monolithic release of postscriptbarcode:
 
