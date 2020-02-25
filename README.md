@@ -6,7 +6,9 @@ Uses postscript and different python scripts to create RTF sample sheets and QR 
 ## Requirements
 
 Python 2.7 (Python 3 is not yet supported!)
+
 Ghostscript
+
 Pdflatex
 
 # Instructions
