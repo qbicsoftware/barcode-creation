@@ -2,9 +2,9 @@
 import os
 import sys
 import csv
+import json
 import time
 import datetime
-import json
 from PyRTFloc import *
 
 BASE = os.path.dirname(sys.argv[0])
@@ -27,15 +27,10 @@ for line in open(PROPERTIES_FILE_PATH):
 
 RESULTS_FOLDER = properties["barcode.results"]
 
-ts = time.time()
-st = datetime.datetime.fromtimestamp(ts).strftime('_%Y%b%d')
-
-
 def replace_all_in_dictionary(text, dic):
     for i, j in dic.iteritems():
         text = text.replace(i, j)
     return text
-
 
 def byteify(input):
     if isinstance(input, dict):
@@ -48,30 +43,23 @@ def byteify(input):
     else:
         return input
 
-
 with open(sys.argv[1], 'r') as f:
     obj = byteify(json.loads(f.read()))
 
+file_name = obj["file_name"]
 projectCode = obj["project_code"]
 projectName = obj["project_name"]
 investigator = obj["investigator"]
 contact = obj["contact"]
 
-# inv.put("first", investigator.getFirstName());
-# inv.put("last", investigator.getLastName());
-# inv.put("phone", investigator.getPhone());
 firstCol = obj["cols"][0]
 secondCol = obj["cols"][1]
-
-# PRJ = sys.argv[3][1:5]
-# firstCol = sys.argv[1]
-# secondCol = sys.argv[2]
 
 BASEDIR = os.path.join(RESULTS_FOLDER, projectCode)
 pngdir = os.path.join(BASEDIR, "png/")
 
 sheet_path = BASEDIR + "/documents/sample_sheets"
-outfile = sheet_path + "/sample_sheet_" + projectCode + st
+outfile = sheet_path + "/" + file_name
 
 os.system('mkdir -p ' + sheet_path)
 

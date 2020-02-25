@@ -52,15 +52,16 @@ def test_sheet_images(amount, project = None):
 def test_sheet():
   script = os.path.join(path, "samp_sheet.py")
   project = random_project_code()
+  file_name = "sample_sheet_" + project + "_" + "20200224170639" + ".doc";
   codes = test_sheet_images(3, project)
   print (project)
-  investigator = {"first" : "Ändreas", "last" : "Friedrüfch", "phone" : "12345123123"}
+  investigator = {"first" : "Ändreas", "last" : "Friedrüch", "phone" : "12345123123"}
   contact = {"first" : "Chriß", "last" : "Möhr", "phone" : "98328472384"}
   samples = []
   for i in range(3):
     s = {"code" : codes[i], "info" : random_info(), "alt_info" : random_info()}
     samples.append(s)
-  obj = {"project_code" : project, "project_name" : "A test project!", "samples" : samples, "cols" : ["first info", "second info"], "contact" : contact, "investigator" : investigator}
+  obj = {"file_name" : file_name, "project_code" : project, "project_name" : "A test project!", "samples" : samples, "cols" : ["first info", "second info"], "contact" : contact, "investigator" : investigator}
   jsonPath = 'test.json'
   with open(jsonPath, 'w') as outfile:
     json.dump(obj, outfile)
@@ -73,5 +74,5 @@ def test_sheet():
 
 if __name__ == '__main__':
   print ("Testing")
-  #test_tubes(2)
+  test_tubes(2)
   test_sheet()
