@@ -11,6 +11,14 @@ path = os.path.dirname(os.path.realpath(__file__))
 def random_string(length, alphabet):
   return ''.join(random.choice(alphabet) for _ in range(length))
 
+# creates QTESTENTITY-x codes with x digits
+def random_entity_code(num_digits, project = None):
+  digits = random_string(num_digits, string.digits)
+  if project:
+    return project + 'ENTITY-' + digits
+  else:
+    return random_project_code() + 'ENTITY-' + digits
+
 # does not create correct checksums!
 def random_barcode(project = None):
   digits = random_string(3, string.digits)
@@ -32,6 +40,16 @@ def test_tubes(amount):
   for i in range(amount):
     code = random_barcode()
     name = str(i+1).zfill(4)+"_"+code
+    info1 = random_info()
+    info2 = random_info()
+    cmd = python+" "+script+" "+name+" "+code+" "+info1+" "+info2+" testmode"
+    os.system(cmd)
+
+  for i in range(amount):
+    digits = random.randint(1,6)
+    code = random_entity_code(digits, random_project_code())
+    name = str(i+1).zfill(4)+"_"+code
+    print "entity being tested: "+name+"; code: "+code
     info1 = random_info()
     info2 = random_info()
     cmd = python+" "+script+" "+name+" "+code+" "+info1+" "+info2+" testmode"
